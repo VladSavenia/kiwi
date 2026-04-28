@@ -25,6 +25,7 @@
     #define TEMPLATE_OSAL_FREERTOS_INFINITY_TIMEOUT    UINT32_MAX
 #endif
 
+// BEGIN THREAD
 /**
  * \brief Template FreeRTOS-specific priority levels.
  */
@@ -40,6 +41,7 @@
 #ifndef TEMPLATE_OSAL_FREERTOS_THREAD_PRIO_ULTRA
     #define TEMPLATE_OSAL_FREERTOS_THREAD_PRIO_ULTRA     (tskIDLE_PRIORITY + 4)
 #endif
+// END THREAD
 
 /*========================================================[DATA TYPES DEFINITIONS]==========================================*/
 

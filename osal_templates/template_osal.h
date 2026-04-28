@@ -93,25 +93,36 @@ typedef enum
     TEMPLATE_OSAL_INVALID_ARGS_ERR,               //!< Invalid arguments passed to an OSAL function.
     TEMPLATE_OSAL_NOT_INIT_ERR,                   //!< OSAL object/service not properly initialized.
     TEMPLATE_OSAL_CALL_FROM_ISR_ERR,              //!< Function incorrectly invoked from an ISR.
+
+    // BEGIN QUEUE
     TEMPLATE_OSAL_QUEUE_CREATE_ERR,               //!< Failed to create a queue (resources).
     TEMPLATE_OSAL_QUEUE_MEM_ALLOCATION_ERR,       //!< Memory allocation failure during queue creation.
     TEMPLATE_OSAL_QUEUE_OVERFLOW_ERR,             //!< Enqueue into a full queue (overflow).
     TEMPLATE_OSAL_QUEUE_IS_EMPTY_ERR,             //!< Dequeue attempted on an empty queue.
     TEMPLATE_OSAL_QUEUE_IS_FULL_ERR,              //!< Predicate/operation indicates full queue.
+    // END QUEUE
+
+    // BEGIN LOCK
     TEMPLATE_OSAL_LOCK_OBJ_CREATE_ERR,            //!< Failed to create a lock object (mutex/semaphore).
     TEMPLATE_OSAL_LOCK_OBJ_MEM_ALLOCATION_ERR,    //!< Memory allocation failure for lock object.
+    // END LOCK
+
+    // BEGIN THREAD
     TEMPLATE_OSAL_THREAD_CREATE_ERR,              //!< Failed to create a thread.
     TEMPLATE_OSAL_THREAD_MEM_ALLOCATION_ERR,      //!< Memory allocation failure during thread creation.
+    // END THREAD
+
+    // BEGIN MEMORY
     TEMPLATE_OSAL_MEM_ALLOCATION_ERR,             //!< Backend failed to allocate memory.
+    // END MEMORY
+
     TEMPLATE_OSAL_PORT_SPECIFIC_ERR               //!< Port/RTOS-specific error.
 } Template_osalErr_e;
 
-// BEGIN TIME
 /**
  * \brief Template OSAL time in milliseconds.
  */
 typedef uint32_t Template_osalTimeMs_t;
-// END TIME
 
 // BEGIN QUEUE
 /**

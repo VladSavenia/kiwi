@@ -55,6 +55,7 @@
  */
 static void template_osalResetObjects(Template_osal_s *const osal);
 
+// BEGIN QUEUE
 /**
  * \brief  Find a free queue slot.
  */
@@ -65,7 +66,9 @@ static size_t template_osalRegQueueFreeSlotFind(void * const osalPort);
  */
 static size_t template_osalRegQueueHandleFind(void * const osalPort,
                                               const Template_osalQueueHandle_t queueHandle);
+// END QUEUE
 
+// BEGIN LOCK
 /**
  * \brief  Find a free lock object slot.
  */
@@ -76,7 +79,9 @@ static size_t template_osalRegLockFreeSlotFind(void * const osalPort);
  */
 static size_t template_osalRegLockHandleFind(void * const osalPort,
                                              const Template_osalLockObjHandle_t lockObjHandle);
+// END LOCK
 
+// BEGIN THREAD
 /**
  * \brief  Find a free thread slot.
  */
@@ -87,7 +92,9 @@ static size_t template_osalRegThreadFreeSlotFind(void * const osalPort);
  */
 static size_t template_osalRegThreadHandleFind(void * const osalPort,
                                                const Template_osalThreadHandle_t threadHandle);
+// END THREAD
 
+// BEGIN MEMORY
 /**
  * \brief  Find a free memory slot.
  */
@@ -98,6 +105,7 @@ static size_t template_osalRegMemFreeSlotFind(void * const osalPort);
  */
 static size_t template_osalRegMemHandleFind(void * const osalPort,
                                             const void * const ptr);
+// END MEMORY
 
 /**
  * \brief   Protected registry helpers vtable (for backend ports).
@@ -106,21 +114,29 @@ static size_t template_osalRegMemHandleFind(void * const osalPort,
  */
 static const Template_osalPtable_s template_osalPtable =
 {
+    // BEGIN QUEUE
     /*------------------------------- Queues --------------------------------*/
     .queueFreeSlotFind = template_osalRegQueueFreeSlotFind,
     .queueHandleFind   = template_osalRegQueueHandleFind,
+    // END QUEUE
 
+    // BEGIN LOCK
     /*-------------------------------- Locks --------------------------------*/
     .lockObjFreeSlotFind = template_osalRegLockFreeSlotFind,
     .lockObjHandleFind   = template_osalRegLockHandleFind,
+    // END LOCK
 
+    // BEGIN THREAD
     /*------------------------------- Threads -------------------------------*/
     .threadFreeSlotFind = template_osalRegThreadFreeSlotFind,
     .threadHandleFind   = template_osalRegThreadHandleFind,
+    // END THREAD
 
+    // BEGIN MEMORY
     /*-------------------------------- Memory -------------------------------*/
     .memFreeSlotFind = template_osalRegMemFreeSlotFind,
     .memHandleFind   = template_osalRegMemHandleFind
+    // END MEMORY
 };
 
 
@@ -438,6 +454,7 @@ Template_osalErr_e template_osalNameSet(Template_osal_s *const osal,
 }
 
 
+// BEGIN QUEUE
 /*----------------------------------- Queue -------------------------------------------*/
 
 /**
@@ -760,8 +777,9 @@ Template_osalErr_e template_osalQueueHandleGet(Template_osal_s *const osal,
 
     return TEMPLATE_OSAL_NO_ERR;
 }
+// END QUEUE
 
-
+// BEGIN LOCK
 /*------------------------------------- Locks --------------------------------*/
 
 /**
@@ -1000,8 +1018,9 @@ Template_osalErr_e template_osalLockObjHandleGet(Template_osal_s *const osal,
 
     return TEMPLATE_OSAL_NO_ERR;
 }
+// END LOCK
 
-
+// BEGIN THREAD
 /*------------------------------------ Threads -------------------------------*/
 
 /**
@@ -1325,8 +1344,9 @@ Template_osalErr_e template_osalThreadHandleGet(Template_osal_s *const osal,
 
     return TEMPLATE_OSAL_NO_ERR;  // Exit: return the summary status
 }
+// END THREAD
 
-
+// BEGIN TIME
 /*-------------------------------------- Time --------------------------------*/
 
 /**
@@ -1375,8 +1395,9 @@ Template_osalErr_e template_osalTimeMsGet(Template_osal_s *const osal,
 
     return retStatus;  // Exit: return the summary status
 }
+// END TIME
 
-
+// BEGIN MEMORY
 /*------------------------------------- Memory --------------------------------*/
 
 /**
@@ -1535,7 +1556,7 @@ Template_osalErr_e template_osalMemHandleGet(Template_osal_s *const osal,
 
     return TEMPLATE_OSAL_NO_ERR;  // Exit: success
 }
-
+// END MEMORY
 
 /*============================================================================[ PRIVATE FUNCTIONS ]============================================================================*/
 
@@ -1552,18 +1573,23 @@ static void template_osalResetObjects(Template_osal_s *const osal)
     /* Validate by caller */
     TEMPLATE_OSAL_ASSERT(osal != NULL);
 
+    // BEGIN QUEUE
     /* Reset queue slots */
     for (size_t i = 0; i < TEMPLATE_OSAL_QUEUE_SLOTS_NUM; ++i)
     {
         osal->queueObjHandle[i] = NULL;
     }
+    // END QUEUE
 
+    // BEGIN LOCK
     /* Reset lock object slots */
     for (size_t i = 0; i < TEMPLATE_OSAL_LOCK_OBJ_SLOTS_NUM; ++i)
     {
         osal->lockObjHandle[i] = NULL;
     }
+    // END LOCK
 
+    // BEGIN THREAD
     /* Reset thread slots */
     for (size_t i = 0; i < TEMPLATE_OSAL_THREAD_SLOTS_NUM; ++i)
     {
@@ -1574,18 +1600,22 @@ static void template_osalResetObjects(Template_osal_s *const osal)
         osal->threadObjHandle[i].cfg.prio      = TEMPLATE_OSAL_THREAD_PRIORITY_LOW;
         osal->threadObjHandle[i].handle        = NULL;
     }
+    // END THREAD
 
+    // BEGIN MEMORY
     /* Reset memory registry slots */
     for (size_t i = 0; i < TEMPLATE_OSAL_MEM_SLOTS_NUM; ++i)
     {
         osal->memObjHandle[i] = NULL;
     }
+    // END MEMORY
 
     /* Trace: returned value */
     TEMPLATE_OSAL_TRACE("template_osalResetObjects -> ok");
 }
 
 
+// BEGIN QUEUE
 /*-------------------------------- Registry: Queues -------------------------------*/
 
 /**
@@ -1653,8 +1683,9 @@ static size_t template_osalRegQueueHandleFind(void * const osalPort,
 
     return 0u;
 }
+// END QUEUE
 
-
+// BEGIN LOCK
 /*-------------------------------- Registry: Locks --------------------------------*/
 
 /**
@@ -1722,8 +1753,9 @@ static size_t template_osalRegLockHandleFind(void * const osalPort,
 
     return 0u;
 }
+// END LOCK
 
-
+// BEGIN THREAD
 /*------------------------------- Registry: Threads -------------------------------*/
 
 /**
@@ -1791,8 +1823,10 @@ static size_t template_osalRegThreadHandleFind(void * const osalPort,
 
     return 0u;
 }
+// END THREAD
 
 
+// BEGIN MEMORY
 /*-------------------------------- Registry: Memory --------------------------------*/
 
 /**
@@ -1860,3 +1894,4 @@ static size_t template_osalRegMemHandleFind(void * const osalPort,
 
     return 0u;
 }
+// END MEMORY

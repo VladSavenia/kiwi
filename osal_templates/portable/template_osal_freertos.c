@@ -38,6 +38,7 @@
 
 /*===============================================================[ INTERNAL FUNCTIONS AND OBJECTS DECLARATION ]======================================================*/
 
+// BEGIN QUEUE
 /*-------------------------------- Queues ---------------------------------*/
 
 /**
@@ -81,7 +82,9 @@ static Template_osalErr_e template_osalFreertosQueueReset(void * const osalFreer
  */
 static inline size_t template_osalFreertosFindQueueHandle(Template_osalFreertos_s * const osalFreertos,
                                                           const Template_osalQueueHandle_t queueHandle);
+// END QUEUE
 
+// BEGIN LOCK
 /*-------------------------------- Locks ----------------------------------*/
 
 /**
@@ -114,7 +117,9 @@ static Template_osalErr_e template_osalFreertosUnlock(void * const osalFreertos,
  */
 static inline size_t template_osalFreertosFindLockObjHandle(Template_osalFreertos_s * const osalFreertos,
                                                             const Template_osalLockObjHandle_t lockObjHandle);
+// END LOCK
 
+// BEGIN THREAD
 /*-------------------------------- Threads --------------------------------*/
 
 /**
@@ -164,7 +169,9 @@ static inline size_t template_osalFreertosFindThreadHandle(Template_osalFreertos
  * \brief Validate thread parameters (stack/priority/worker).
  */
 static bool template_osalFreertosThreadParamCheck(const Template_osalThreadCfg_s * const threadCfg);
+// END THREAD
 
+// BEGIN TIME
 /*--------------------------------- Time ----------------------------------*/
 
 /**
@@ -177,7 +184,9 @@ static Template_osalErr_e template_osalFreertosTimeMsGet(void * const osalFreert
  * \brief Convert milliseconds to FreeRTOS ticks (with infinity handling).
  */
 static TickType_t template_osalFreertosTimeMsToTicksConvert(const Template_osalTimeMs_t timeMs);
+// END TIME
 
+// BEGIN MEMORY
 /*-------------------------------- Memory ---------------------------------*/
 
 /**
@@ -192,6 +201,7 @@ static Template_osalErr_e template_osalFreertosMemAlloc(void * const osalFreerto
  */
 static Template_osalErr_e template_osalFreertosMemFree(void * const osalFreertos,
                                                        void * const ptr);
+// END MEMORY
 
 /*------------------------------- Predicate -------------------------------*/
 
@@ -202,6 +212,7 @@ static bool template_osalFreertosIsValid(const void * const osal);
 
 /*------------------------------ Look-up tables ---------------------------*/
 
+// BEGIN THREAD
 /**
  * \brief FreeRTOS priority levels LUT.
  */
@@ -212,25 +223,31 @@ static const UBaseType_t Template_osalFreertosThreadPriority[TEMPLATE_OSAL_THREA
     TEMPLATE_OSAL_FREERTOS_THREAD_PRIO_HIGH,
     TEMPLATE_OSAL_FREERTOS_THREAD_PRIO_ULTRA
 };
+// END THREAD
 
 /**
  * \brief Template FreeRTOS OSAL vtable.
  */
 static const Template_osalVtable_s template_osalFreeRtosVtable =
 {
+    // BEGIN QUEUE
     /* Queues */
     .queueCreate   = template_osalFreertosQueueCreate,
     .queueDelete   = template_osalFreertosQueueDelete,
     .queueItemPut  = template_osalFreertosQueueItemPut,
     .queueItemPend = template_osalFreertosQueueItemPend,
     .queueReset    = template_osalFreertosQueueReset,
+    // END QUEUE
 
+    // BEGIN LOCK
     /* Locks */
     .lockObjCreate = template_osalFreertosLockObjCreate,
     .lockObjDelete = template_osalFreertosLockObjDelete,
     .lock          = template_osalFreertosLock,
     .unlock        = template_osalFreertosUnlock,
+    // END LOCK
 
+    // BEGIN THREAD
     /* Threads */
     .threadCreate  = template_osalFreertosThreadCreate,
     .threadDelete  = template_osalFreertosThreadDelete,
@@ -238,13 +255,18 @@ static const Template_osalVtable_s template_osalFreeRtosVtable =
     .threadResume  = template_osalFreertosThreadResume,
     .threadDelay   = template_osalFreertosThreadDelay,
     .threadExit    = template_osalFreertosThreadExit,
+    // END THREAD
 
+    // BEGIN TIME
     /* Time */
     .timeMsGet = template_osalFreertosTimeMsGet,
+    // END TIME
 
+    // BEGIN MEMORY
     /* Memory */
     .memAlloc = template_osalFreertosMemAlloc,
     .memFree  = template_osalFreertosMemFree,
+    // END MEMORY
 
     /* Predicate */
     .isValid = template_osalFreertosIsValid
@@ -334,6 +356,7 @@ Template_osalErr_e template_osalFreertosDeinit(Template_osalFreertos_s *const os
 
     osalFreertos->validFlag = false;
 
+    // BEGIN THREAD
     /* Suspend and delete threads */
     for (size_t i = 0; i < TEMPLATE_OSAL_THREAD_SLOTS_NUM; ++i)
     {
@@ -350,7 +373,9 @@ Template_osalErr_e template_osalFreertosDeinit(Template_osalFreertos_s *const os
             osalFreertos->base.threadObjHandle[i].cfg.prio      = TEMPLATE_OSAL_THREAD_PRIORITY_LOW;
         }
     }
+    // END THREAD
 
+    // BEGIN QUEUE
     /* Delete queues */
     for (size_t i = 0; i < TEMPLATE_OSAL_QUEUE_SLOTS_NUM; ++i)
     {
@@ -360,7 +385,9 @@ Template_osalErr_e template_osalFreertosDeinit(Template_osalFreertos_s *const os
             osalFreertos->base.queueObjHandle[i] = NULL;
         }
     }
+    // END QUEUE
 
+    // BEGIN LOCK
     /* Delete lock objects */
     for (size_t i = 0; i < TEMPLATE_OSAL_LOCK_OBJ_SLOTS_NUM; ++i)
     {
@@ -370,6 +397,7 @@ Template_osalErr_e template_osalFreertosDeinit(Template_osalFreertos_s *const os
             osalFreertos->base.lockObjHandle[i] = NULL;
         }
     }
+    // END LOCK
 
     /* Base deinit */
     return template_osalDeinit(&osalFreertos->base);
@@ -377,6 +405,9 @@ Template_osalErr_e template_osalFreertosDeinit(Template_osalFreertos_s *const os
 
 
 //============================================================================[ PRIVATE FUNCTIONS ]==================================================================================
+
+// BEGIN QUEUE
+/*-------------------------------- Queues ---------------------------------*/
 
 /**
  * \brief Create a queue.
@@ -664,8 +695,10 @@ static inline size_t template_osalFreertosFindQueueHandle(Template_osalFreertos_
     /* 0 = invalid ID (not found) */
     return 0u;
 }
+// END QUEUE
 
 
+// BEGIN LOCK
 /*-------------------------------- Locks ----------------------------------*/
 
 /**
@@ -889,8 +922,10 @@ static inline size_t template_osalFreertosFindLockObjHandle(Template_osalFreerto
     /* 0 = invalid ID (not found) */
     return 0u;
 }
+// END LOCK
 
 
+// BEGIN THREAD
 /*-------------------------------- Threads --------------------------------*/
 
 /**
@@ -1234,8 +1269,10 @@ static bool template_osalFreertosThreadParamCheck(const Template_osalThreadCfg_s
 
     return true; /* All parameters valid */
 }
+// END THREAD
 
 
+// BEGIN TIME
 /*--------------------------------- Time ----------------------------------*/
 
 /**
@@ -1287,8 +1324,10 @@ static TickType_t template_osalFreertosTimeMsToTicksConvert(const Template_osalT
     /* Safe conversion via FreeRTOS helper macro */
     return pdMS_TO_TICKS(timeMs);
 }
+// END TIME
 
 
+// BEGIN MEMORY
 /*-------------------------------- Memory ---------------------------------*/
 
 /**
@@ -1370,7 +1409,7 @@ static Template_osalErr_e template_osalFreertosMemFree(void * const osalFreertos
     /* Exit: no errors */
     return TEMPLATE_OSAL_NO_ERR;
 }
-
+// END MEMORY
 
 /*------------------------------- Predicate -------------------------------*/
 
