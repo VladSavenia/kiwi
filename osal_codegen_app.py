@@ -74,6 +74,13 @@ def apply_prefix(content: str, forms: PrefixForms) -> str:
     }
     for src, dst in mapping.items():
         content = content.replace(src, dst)
+
+    # Keep camelCase prefix for template symbols that continue in camelCase
+    # after `_osal` (functions, vtable/ptable objects, and global variables).
+    camel_symbol_prefix_pattern = re.compile(
+        rf"\b{re.escape(forms.snake)}_osal(?=[A-Z])"
+    )
+    content = camel_symbol_prefix_pattern.sub(f"{forms.camel}_osal", content)
     return content
 
 
