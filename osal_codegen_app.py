@@ -64,6 +64,9 @@ def build_prefix_forms(prefix: str) -> PrefixForms:
 
 def apply_prefix(content: str, forms: PrefixForms) -> str:
     mapping = {
+        "TEMPLATE": forms.upper,
+        "Template": forms.pascal,
+        "template": forms.snake,
         "SYS_PARAM_SRV": forms.upper,
         "SysParamSrv": forms.pascal,
         "sysParamSrv": forms.camel,
@@ -74,22 +77,26 @@ def apply_prefix(content: str, forms: PrefixForms) -> str:
     return content
 
 
-def apply_api_profile_to_freertos_c(content: str, selected_apis: set[str]) -> str:
-    entries = {
-        "queue": [".queueCreate", ".queueDelete", ".queueItemPut", ".queueItemPend", ".queueReset"],
-        "lock": [".lockObjCreate", ".lockObjDelete", ".lock", ".unlock"],
-        "thread": [".threadCreate", ".threadDelete", ".threadSuspend", ".threadResume", ".threadDelay", ".threadExit"],
-        "time": [".timeMsGet"],
-        "memory": [".memAlloc", ".memFree"],
+def apply_api_profile_markers(content: str, selected_apis: set[str]) -> str:
+    marker_to_api = {
+        "QUEUE": "queue",
+        "LOCK": "lock",
+        "THREAD": "thread",
+        "MEMORY": "memory",
+        "TIME": "time",
     }
 
-    for api_group, fields in entries.items():
-        if api_group in selected_apis:
-            continue
-        for field in fields:
-            pattern = rf"^([ \t]*{re.escape(field)}[ \t]*=)[^,]+,"
-            replacement = r"\1 NULL,"
-            content = re.sub(pattern, replacement, content, flags=re.MULTILINE)
+    for marker, api_name in marker_to_api.items():
+        pattern = re.compile(
+            rf"(?ms)^[ \t]*//[ \t]*BEGIN[ \t]+{marker}[ \t]*\n"
+            rf"(.*?)"
+            rf"^[ \t]*//[ \t]*END[ \t]+{marker}[ \t]*\n?"
+        )
+        if api_name in selected_apis:
+            content = pattern.sub(r"\1", content)
+        else:
+            content = pattern.sub("", content)
+
     return content
 
 
@@ -245,9 +252,6 @@ class App(tk.Tk):
         output_root = pathlib.Path(self.dest_var.get().strip())
 
         selected = {name for name, var in self.api_vars.items() if var.get()}
-        if not selected:
-            messagebox.showerror("Error", "Select at least one API group.")
-            return
 
         if port_raw != "freertos":
             messagebox.showerror("Error", "Currently only FreeRTOS port generation is implemented.")
@@ -271,20 +275,18 @@ class App(tk.Tk):
             portable_dir.mkdir(parents=True, exist_ok=True)
 
             files = [
-                templates_dir / "sys_param_srv_osal.h",
-                templates_dir / "sys_param_srv_osal.c",
-                templates_dir / "portable" / "sys_param_srv_osal_freertos.h",
-                templates_dir / "portable" / "sys_param_srv_osal_freertos.c",
+                templates_dir / "template_osal.h",
+                templates_dir / "template_osal.c",
+                templates_dir / "portable" / "template_osal_freertos.h",
+                templates_dir / "portable" / "template_osal_freertos.c",
             ]
 
             for src in files:
                 rel = src.relative_to(templates_dir)
                 text = src.read_text(encoding="utf-8")
+                text = apply_api_profile_markers(text, selected)
                 text = apply_prefix(text, forms)
-                if src.name.endswith("_freertos.c"):
-                    text = apply_api_profile_to_freertos_c(text, selected)
-
-                dst_rel = str(rel).replace("sys_param_srv", forms.snake)
+                dst_rel = str(rel).replace("template", forms.snake)
                 dst = module_dir / dst_rel
                 dst.parent.mkdir(parents=True, exist_ok=True)
                 dst.write_text(text, encoding="utf-8")
