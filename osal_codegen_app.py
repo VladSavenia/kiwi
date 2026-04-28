@@ -74,246 +74,22 @@ def apply_prefix(content: str, forms: PrefixForms) -> str:
     return content
 
 
-API_SYMBOLS = {
-    "queue": {
-        "base_api": [
-            "sysParamSrv_osalQueueCreate",
-            "sysParamSrv_osalQueueDelete",
-            "sysParamSrv_osalQueueItemPut",
-            "sysParamSrv_osalQueueItemPend",
-            "sysParamSrv_osalQueueReset",
-            "sysParamSrv_osalQueueHandleGet",
-        ],
-        "base_internal": [
-            "sysParamSrv_osalRegQueueFreeSlotFind",
-            "sysParamSrv_osalRegQueueHandleFind",
-        ],
-        "port_api": [
-            "sysParamSrv_osalFreertosQueueCreate",
-            "sysParamSrv_osalFreertosQueueDelete",
-            "sysParamSrv_osalFreertosQueueItemPut",
-            "sysParamSrv_osalFreertosQueueItemPend",
-            "sysParamSrv_osalFreertosQueueReset",
-            "sysParamSrv_osalFreertosFindQueueHandle",
-        ],
-        "vtable_fields": ["queueCreate", "queueDelete", "queueItemPut", "queueItemPend", "queueReset"],
-        "ptable_fields": ["queueFreeSlotFind", "queueHandleFind"],
-        "struct_fields": ["queueObjHandle"],
-        "macros": ["SYS_PARAM_SRV_OSAL_QUEUE_SLOTS_NUM"],
-        "typedefs": ["SysParamSrv_osalQueueHandle_t"],
-    },
-    "lock": {
-        "base_api": [
-            "sysParamSrv_osalLockObjCreate",
-            "sysParamSrv_osalLockObjDelete",
-            "sysParamSrv_osalLock",
-            "sysParamSrv_osalUnlock",
-            "sysParamSrv_osalLockObjHandleGet",
-        ],
-        "base_internal": [
-            "sysParamSrv_osalRegLockFreeSlotFind",
-            "sysParamSrv_osalRegLockHandleFind",
-        ],
-        "port_api": [
-            "sysParamSrv_osalFreertosLockObjCreate",
-            "sysParamSrv_osalFreertosLockObjDelete",
-            "sysParamSrv_osalFreertosLock",
-            "sysParamSrv_osalFreertosUnlock",
-            "sysParamSrv_osalFreertosFindLockObjHandle",
-        ],
-        "vtable_fields": ["lockObjCreate", "lockObjDelete", "lock", "unlock"],
-        "ptable_fields": ["lockObjFreeSlotFind", "lockObjHandleFind"],
-        "struct_fields": ["lockObjHandle"],
-        "macros": ["SYS_PARAM_SRV_OSAL_LOCK_OBJ_SLOTS_NUM"],
-        "typedefs": ["SysParamSrv_osalLockObjHandle_t"],
-    },
-    "thread": {
-        "base_api": [
-            "sysParamSrv_osalThreadCreate",
-            "sysParamSrv_osalThreadDelete",
-            "sysParamSrv_osalThreadSuspend",
-            "sysParamSrv_osalThreadResume",
-            "sysParamSrv_osalThreadDelay",
-            "sysParamSrv_osalThreadExit",
-            "sysParamSrv_osalThreadHandleGet",
-        ],
-        "base_internal": [
-            "sysParamSrv_osalRegThreadFreeSlotFind",
-            "sysParamSrv_osalRegThreadHandleFind",
-        ],
-        "port_api": [
-            "sysParamSrv_osalFreertosThreadCreate",
-            "sysParamSrv_osalFreertosThreadDelete",
-            "sysParamSrv_osalFreertosThreadSuspend",
-            "sysParamSrv_osalFreertosThreadResume",
-            "sysParamSrv_osalFreertosThreadDelay",
-            "sysParamSrv_osalFreertosThreadExit",
-            "sysParamSrv_osalFreertosFindThreadHandle",
-            "sysParamSrv_osalFreertosThreadParamCheck",
-        ],
-        "vtable_fields": ["threadCreate", "threadDelete", "threadSuspend", "threadResume", "threadDelay", "threadExit"],
-        "ptable_fields": ["threadFreeSlotFind", "threadHandleFind"],
-        "struct_fields": ["threadObjHandle"],
-        "macros": ["SYS_PARAM_SRV_OSAL_THREAD_SLOTS_NUM"],
-        "typedefs": [
-            "SysParamSrv_osalThreadHandle_t",
-            "SysParamSrv_osalThreadWorker_f",
-            "SysParamSrv_osalThreadPrio_e",
-            "SysParamSrv_osalThreadCfg_s",
-            "SysParamSrv_osalThread_s",
-        ],
-    },
-    "time": {
-        "base_api": ["sysParamSrv_osalTimeMsGet"],
-        "base_internal": [],
-        "port_api": ["sysParamSrv_osalFreertosTimeMsGet"],
-        "vtable_fields": ["timeMsGet"],
-        "ptable_fields": [],
-        "struct_fields": [],
-        "macros": [],
-        "typedefs": [],
-    },
-    "memory": {
-        "base_api": ["sysParamSrv_osalMalloc", "sysParamSrv_osalFree", "sysParamSrv_osalMemHandleGet"],
-        "base_internal": [
-            "sysParamSrv_osalRegMemFreeSlotFind",
-            "sysParamSrv_osalRegMemHandleFind",
-        ],
-        "port_api": ["sysParamSrv_osalFreertosMemAlloc", "sysParamSrv_osalFreertosMemFree"],
-        "vtable_fields": ["memAlloc", "memFree"],
-        "ptable_fields": ["memFreeSlotFind", "memHandleFind"],
-        "struct_fields": ["memObjHandle"],
-        "macros": ["SYS_PARAM_SRV_OSAL_MEM_SLOTS_NUM"],
-        "typedefs": ["SysParamSrv_osalMemHandle_t"],
-    },
-}
+def apply_api_profile_to_freertos_c(content: str, selected_apis: set[str]) -> str:
+    entries = {
+        "queue": [".queueCreate", ".queueDelete", ".queueItemPut", ".queueItemPend", ".queueReset"],
+        "lock": [".lockObjCreate", ".lockObjDelete", ".lock", ".unlock"],
+        "thread": [".threadCreate", ".threadDelete", ".threadSuspend", ".threadResume", ".threadDelay", ".threadExit"],
+        "time": [".timeMsGet"],
+        "memory": [".memAlloc", ".memFree"],
+    }
 
-
-def _remove_function_declaration_and_definition(content: str, func_name: str) -> str:
-    lines = content.splitlines(keepends=True)
-    out: list[str] = []
-    i = 0
-    signature_re = re.compile(
-        rf"^\s*(?:static\s+)?(?:inline\s+)?(?:void|bool|size_t|TickType_t|SysParamSrv_osalErr_e)\b.*\b{re.escape(func_name)}\s*\("
-    )
-
-    while i < len(lines):
-        line = lines[i]
-        if not signature_re.search(line):
-            out.append(line)
-            i += 1
+    for api_group, fields in entries.items():
+        if api_group in selected_apis:
             continue
-
-        # Skip function signature block until ';' (declaration) or '{' (definition).
-        j = i
-        brace_depth = 0
-        saw_open_brace = False
-
-        while j < len(lines):
-            current = lines[j]
-            brace_depth += current.count("{")
-            if "{" in current:
-                saw_open_brace = True
-            brace_depth -= current.count("}")
-
-            if not saw_open_brace and ";" in current:
-                j += 1
-                break
-            if saw_open_brace and brace_depth <= 0:
-                j += 1
-                break
-            j += 1
-
-        i = j
-
-    return "".join(out)
-
-
-def _remove_lines_by_markers(content: str, markers: list[str]) -> str:
-    lines = content.splitlines(keepends=True)
-    filtered = [line for line in lines if not any(marker in line for marker in markers)]
-    return "".join(filtered)
-
-
-def _remove_typedef_blocks(content: str, type_names: list[str]) -> str:
-    lines = content.splitlines(keepends=True)
-    remove_indices: set[int] = set()
-
-    # Remove one-line typedef aliases first: typedef ... TypeName;
-    for idx, line in enumerate(lines):
-        for type_name in type_names:
-            alias_re = re.compile(rf"^\s*typedef[^\n]*\b{re.escape(type_name)}\s*;\s*$")
-            if alias_re.match(line):
-                remove_indices.add(idx)
-
-    # Remove multi-line typedef blocks ending with "} TypeName;".
-    for idx, line in enumerate(lines):
-        matched_type = None
-        for type_name in type_names:
-            end_re = re.compile(rf"^\s*\}}\s*{re.escape(type_name)}\s*;\s*$")
-            if end_re.match(line):
-                matched_type = type_name
-                break
-        if matched_type is None:
-            continue
-
-        start = idx
-        while start >= 0 and not lines[start].lstrip().startswith("typedef"):
-            start -= 1
-        if start < 0:
-            continue
-        for i in range(start, idx + 1):
-            remove_indices.add(i)
-
-    return "".join(line for idx, line in enumerate(lines) if idx not in remove_indices)
-
-
-def _remove_ifndef_macro_blocks(content: str, macro_names: list[str]) -> str:
-    for macro in macro_names:
-        # Remove optional doc comment + #ifndef/#define/#endif block.
-        guarded = re.compile(
-            rf"(?ms)(?:/\*\*.*?\*/\s*)?#ifndef\s+{re.escape(macro)}\s*"
-            rf"#define\s+{re.escape(macro)}[^\n]*\n.*?#endif[^\n]*\n?"
-        )
-        content = guarded.sub("", content)
-    return content
-
-
-def prune_base_header(content: str, selected_apis: set[str]) -> str:
-    for api, symbols in API_SYMBOLS.items():
-        if api in selected_apis:
-            continue
-        for fn in symbols["base_api"]:
-            content = _remove_function_declaration_and_definition(content, fn)
-        field_markers = [f"(*{f})" for f in symbols["vtable_fields"]]
-        field_markers += [f"(*{f})" for f in symbols["ptable_fields"]]
-        field_markers += symbols["struct_fields"]
-        content = _remove_lines_by_markers(content, field_markers)
-        content = _remove_ifndef_macro_blocks(content, symbols["macros"])
-        content = _remove_typedef_blocks(content, symbols["typedefs"])
-    return content
-
-
-def prune_base_source(content: str, selected_apis: set[str]) -> str:
-    for api, symbols in API_SYMBOLS.items():
-        if api in selected_apis:
-            continue
-        for fn in symbols["base_api"] + symbols["base_internal"]:
-            content = _remove_function_declaration_and_definition(content, fn)
-        line_markers = [f".{f}" for f in symbols["ptable_fields"]]
-        line_markers += symbols["struct_fields"]
-        content = _remove_lines_by_markers(content, line_markers)
-    return content
-
-
-def prune_port_source(content: str, selected_apis: set[str]) -> str:
-    for api, symbols in API_SYMBOLS.items():
-        if api in selected_apis:
-            continue
-        for fn in symbols["port_api"]:
-            content = _remove_function_declaration_and_definition(content, fn)
-        line_markers = [f".{f}" for f in symbols["vtable_fields"]]
-        content = _remove_lines_by_markers(content, line_markers)
+        for field in fields:
+            pattern = rf"^([ \t]*{re.escape(field)}[ \t]*=)[^,]+,"
+            replacement = r"\1 NULL,"
+            content = re.sub(pattern, replacement, content, flags=re.MULTILINE)
     return content
 
 
@@ -504,14 +280,9 @@ class App(tk.Tk):
             for src in files:
                 rel = src.relative_to(templates_dir)
                 text = src.read_text(encoding="utf-8")
-                if src.name == "sys_param_srv_osal.h":
-                    text = prune_base_header(text, selected)
-                elif src.name == "sys_param_srv_osal.c":
-                    text = prune_base_source(text, selected)
-                elif src.name.endswith("_freertos.c"):
-                    text = prune_port_source(text, selected)
-
                 text = apply_prefix(text, forms)
+                if src.name.endswith("_freertos.c"):
+                    text = apply_api_profile_to_freertos_c(text, selected)
 
                 dst_rel = str(rel).replace("sys_param_srv", forms.snake)
                 dst = module_dir / dst_rel
