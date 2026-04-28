@@ -24,39 +24,48 @@
     #include TEMPLATE_OSAL_STR(TEMPLATE_CONFIG_FILE)
 #endif
 
+// BEGIN QUEUE
 /**
  * \brief Template OSAL queue slots number.
  */
 #ifndef TEMPLATE_OSAL_QUEUE_SLOTS_NUM
     #define TEMPLATE_OSAL_QUEUE_SLOTS_NUM    (2u)
 #endif
+// END QUEUE
 
+// BEGIN LOCK
 /**
  * \brief Template OSAL lock objects number.
  */
 #ifndef TEMPLATE_OSAL_LOCK_OBJ_SLOTS_NUM
     #define TEMPLATE_OSAL_LOCK_OBJ_SLOTS_NUM    (2u)
 #endif
+// END LOCK
 
+// BEGIN THREAD
 /**
  * \brief Template OSAL threads number.
  */
 #ifndef TEMPLATE_OSAL_THREAD_SLOTS_NUM
     #define TEMPLATE_OSAL_THREAD_SLOTS_NUM    (2u)
 #endif
+// END THREAD
 
+// BEGIN MEMORY
 /**
  * \brief Template OSAL memory registry slots number.
  */
 #ifndef TEMPLATE_OSAL_MEM_SLOTS_NUM
     #define TEMPLATE_OSAL_MEM_SLOTS_NUM    (2u)
 #endif
+// END MEMORY
 
+// BEGIN TIME
 /**
  * \brief Template indefinite timeout definition.
  */
 #define TEMPLATE_OSAL_INFINITY_TOUT    ((Template_osalTimeMs_t)-1)
-
+// END TIME
 
 /**
  * \def    TEMPLATE_OSAL_OBJ_HANDLE_INVALID
@@ -97,31 +106,42 @@ typedef enum
     TEMPLATE_OSAL_PORT_SPECIFIC_ERR               //!< Port/RTOS-specific error.
 } Template_osalErr_e;
 
+// BEGIN TIME
 /**
  * \brief Template OSAL time in milliseconds.
  */
 typedef uint32_t Template_osalTimeMs_t;
+// END TIME
 
+// BEGIN QUEUE
 /**
  * \brief Template OSAL Queue handle type definition.
  */
 typedef void *Template_osalQueueHandle_t;
+// END QUEUE
 
+// BEGIN LOCK
 /**
  * \brief Template OSAL lock object type definition.
  */
 typedef void *Template_osalLockObjHandle_t;
+// END LOCK
 
+// BEGIN THREAD
 /**
  * \brief Template OSAL run-time Thread handle type definition.
  */
 typedef void *Template_osalThreadHandle_t;
+// END THREAD
 
+// BEGIN MEMORY
 /**
  * \brief Template OSAL memory handle type definition.
  */
 typedef void *Template_osalMemHandle_t;
+// END MEMORY
 
+// BEGIN THREAD
 /**
  * \typedef  Template_osalThreadWorker_f
  * \brief    Function prototype for the Template OSAL thread worker.
@@ -164,6 +184,7 @@ typedef struct
     Template_osalThreadCfg_s    cfg;      /*!< Creation config (snapshot). */
     Template_osalThreadHandle_t handle;   /*!< RTOS-native handle.         */
 } Template_osalThread_s;
+// END THREAD
 
 /**
  * \struct  Template_osalVtable_s
@@ -173,6 +194,7 @@ typedef struct
  */
 typedef struct
 {
+    // BEGIN QUEUE
     /*------------------------------------ Queues ------------------------------------*/
 
     /**
@@ -229,7 +251,9 @@ typedef struct
      */
     Template_osalErr_e (*queueReset)(void * const osal,
                                      const Template_osalQueueHandle_t queueHandle);
+    // END QUEUE
 
+    // BEGIN LOCK
     /*------------------------------------ Locks -------------------------------------*/
 
     /**
@@ -268,6 +292,9 @@ typedef struct
     Template_osalErr_e (*unlock)(void * const osal,
                                  const Template_osalLockObjHandle_t lockObjHandle);
 
+    // END LOCK
+
+    // BEGIN THREAD
     /*----------------------------------- Threads ------------------------------------*/
 
     /**
@@ -322,7 +349,9 @@ typedef struct
      * \note   This function never returns control to the caller.
      */
     void (*threadExit)(void *const osal);
+    // BEGIN THREAD
 
+    // BEGIN TIME
     /*------------------------------------- Time -------------------------------------*/
 
     /**
@@ -333,7 +362,9 @@ typedef struct
      */
     Template_osalErr_e (*timeMsGet)(void * const osal,
                                     Template_osalTimeMs_t * const osTimeMs);
+    // END TIME
 
+    // BEGIN MEMORY
     /*------------------------------------- Memory -----------------------------------*/
 
     /**
@@ -355,6 +386,7 @@ typedef struct
      */
     Template_osalErr_e (*memFree)(void * const osal,
                                   void * const ptr);
+    // BEGIN MEMORY
 
     /*---------------------------------- Predicate -----------------------------------*/
 
@@ -377,6 +409,7 @@ typedef struct
  */
 typedef struct
 {
+    // BEGIN QUEUE
     /*------------------------------- Queues --------------------------------*/
 
     /**
@@ -395,6 +428,9 @@ typedef struct
     size_t (*queueHandleFind)(void * const osalPort,
                               const Template_osalQueueHandle_t queueHandle);
 
+    // END QUEUE
+
+    // BEGIN LOCK
     /*-------------------------------- Locks --------------------------------*/
 
     /**
@@ -412,7 +448,9 @@ typedef struct
      */
     size_t (*lockObjHandleFind)(void * const osalPort,
                                 const Template_osalLockObjHandle_t lockObjHandle);
+    // END LOCK
 
+    // BEGIN THREAD
     /*------------------------------- Threads -------------------------------*/
 
     /**
@@ -430,7 +468,9 @@ typedef struct
      */
     size_t (*threadHandleFind)(void * const osalPort,
                                const Template_osalThreadHandle_t threadHandle);
+    // END THREAD
 
+    // BEGIN MEMORY
     /*-------------------------------- Memory --------------------------------*/
 
     /**
@@ -448,6 +488,7 @@ typedef struct
      */
     size_t (*memHandleFind)(void * const osalPort,
                             const void * const ptr);
+    // END MEMORY
 } Template_osalPtable_s;
 
 
@@ -462,17 +503,25 @@ typedef struct
     const void *parent;
     const char *name;
 
+    // BEGIN QUEUE
     /* Queues handles */
     Template_osalQueueHandle_t queueObjHandle[TEMPLATE_OSAL_QUEUE_SLOTS_NUM];
+    // END QUEUE
 
+    // BEGIN LOCK
     /* Lock objects handles */
     Template_osalLockObjHandle_t lockObjHandle[TEMPLATE_OSAL_LOCK_OBJ_SLOTS_NUM];
+    // END LOCK
 
+    // BEGIN THREAD
     /* Threads handles */
     Template_osalThread_s threadObjHandle[TEMPLATE_OSAL_THREAD_SLOTS_NUM];
+    // END THREAD
 
+    // BEGIN MEMORY
     /* Memory registry handles (opaque) */
     Template_osalMemHandle_t memObjHandle[TEMPLATE_OSAL_MEM_SLOTS_NUM];
+    // END MEMORY
 
     /* OS port methods table */
     const Template_osalVtable_s *vtable;
@@ -551,6 +600,7 @@ Template_osalErr_e template_osalNameGet(Template_osal_s *const osal,
 Template_osalErr_e template_osalNameSet(Template_osal_s *const osal,
                                         const char *const name);
 
+// BEGIN QUEUE
 /*------------------------------------ Queues ---------------------------------*/
 
 /**
@@ -620,6 +670,9 @@ Template_osalErr_e template_osalQueueHandleGet(Template_osal_s *const osal,
                                                const size_t queueSlotInd,
                                                Template_osalQueueHandle_t *const queueHandle);
 
+// END QUEUE
+
+// BEGIN LOCK
 /*------------------------------------- Locks --------------------------------*/
 
 /**
@@ -668,7 +721,9 @@ Template_osalErr_e template_osalUnlock(Template_osal_s *const osal,
 Template_osalErr_e template_osalLockObjHandleGet(Template_osal_s *const osal,
                                                  const size_t lockObjSlotInd,
                                                  Template_osalLockObjHandle_t *const lockObjHandle);
+// END LOCK
 
+// BEGIN THREAD
 /*------------------------------------ Threads -------------------------------*/
 
 /**
@@ -736,7 +791,9 @@ void template_osalThreadExit(Template_osal_s *const osal);
 Template_osalErr_e template_osalThreadHandleGet(Template_osal_s *const osal,
                                                 const size_t threadSlotInd,
                                                 Template_osalThreadHandle_t *const threadHandle);
+// END THREAD
 
+// BEGIN TIME
 /*-------------------------------------- Time --------------------------------*/
 
 /**
@@ -747,7 +804,9 @@ Template_osalErr_e template_osalThreadHandleGet(Template_osal_s *const osal,
  */
 Template_osalErr_e template_osalTimeMsGet(Template_osal_s *const osal,
                                           Template_osalTimeMs_t *const osTimeMs);
+// END TIME
 
+// BEGIN MEMORY
 /*------------------------------------- Memory --------------------------------*/
 
 /**
@@ -780,6 +839,7 @@ Template_osalErr_e template_osalFree(Template_osal_s *const osal,
 Template_osalErr_e template_osalMemHandleGet(Template_osal_s *const osal,
                                              const size_t memSlotInd,
                                              Template_osalMemHandle_t *const memHandle);
+// END MEMORY
 
 #ifdef __cplusplus
     }
