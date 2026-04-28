@@ -244,6 +244,17 @@ def _remove_typedef_blocks(content: str, type_names: list[str]) -> str:
     return content
 
 
+def _remove_ifndef_macro_blocks(content: str, macro_names: list[str]) -> str:
+    for macro in macro_names:
+        # Remove optional doc comment + #ifndef/#define/#endif block.
+        guarded = re.compile(
+            rf"(?ms)(?:/\*\*.*?\*/\s*)?#ifndef\s+{re.escape(macro)}\s*"
+            rf"#define\s+{re.escape(macro)}[^\n]*\n.*?#endif[^\n]*\n?"
+        )
+        content = guarded.sub("", content)
+    return content
+
+
 def prune_base_header(content: str, selected_apis: set[str]) -> str:
     for api, symbols in API_SYMBOLS.items():
         if api in selected_apis:
@@ -252,8 +263,9 @@ def prune_base_header(content: str, selected_apis: set[str]) -> str:
             content = _remove_function_declaration_and_definition(content, fn)
         field_markers = [f"(*{f})" for f in symbols["vtable_fields"]]
         field_markers += [f"(*{f})" for f in symbols["ptable_fields"]]
-        field_markers += symbols["struct_fields"] + symbols["macros"]
+        field_markers += symbols["struct_fields"]
         content = _remove_lines_by_markers(content, field_markers)
+        content = _remove_ifndef_macro_blocks(content, symbols["macros"])
         content = _remove_typedef_blocks(content, symbols["typedefs"])
     return content
 
