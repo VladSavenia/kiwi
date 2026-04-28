@@ -236,12 +236,36 @@ def _remove_lines_by_markers(content: str, markers: list[str]) -> str:
 
 
 def _remove_typedef_blocks(content: str, type_names: list[str]) -> str:
-    for type_name in type_names:
-        block = re.compile(rf"(?ms)^typedef\b.*?\}}\s*{re.escape(type_name)}\s*;\n")
-        content = block.sub("", content)
-        alias = re.compile(rf"(?m)^typedef[^\n]*\b{re.escape(type_name)}\s*;\n")
-        content = alias.sub("", content)
-    return content
+    lines = content.splitlines(keepends=True)
+    remove_indices: set[int] = set()
+
+    # Remove one-line typedef aliases first: typedef ... TypeName;
+    for idx, line in enumerate(lines):
+        for type_name in type_names:
+            alias_re = re.compile(rf"^\s*typedef[^\n]*\b{re.escape(type_name)}\s*;\s*$")
+            if alias_re.match(line):
+                remove_indices.add(idx)
+
+    # Remove multi-line typedef blocks ending with "} TypeName;".
+    for idx, line in enumerate(lines):
+        matched_type = None
+        for type_name in type_names:
+            end_re = re.compile(rf"^\s*\}}\s*{re.escape(type_name)}\s*;\s*$")
+            if end_re.match(line):
+                matched_type = type_name
+                break
+        if matched_type is None:
+            continue
+
+        start = idx
+        while start >= 0 and not lines[start].lstrip().startswith("typedef"):
+            start -= 1
+        if start < 0:
+            continue
+        for i in range(start, idx + 1):
+            remove_indices.add(i)
+
+    return "".join(line for idx, line in enumerate(lines) if idx not in remove_indices)
 
 
 def _remove_ifndef_macro_blocks(content: str, macro_names: list[str]) -> str:
