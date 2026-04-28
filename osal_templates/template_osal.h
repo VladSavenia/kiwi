@@ -360,7 +360,7 @@ typedef struct
      * \note   This function never returns control to the caller.
      */
     void (*threadExit)(void *const osal);
-    // BEGIN THREAD
+    // END THREAD
 
     // BEGIN TIME
     /*------------------------------------- Time -------------------------------------*/
@@ -397,7 +397,7 @@ typedef struct
      */
     Template_osalErr_e (*memFree)(void * const osal,
                                   void * const ptr);
-    // BEGIN MEMORY
+    // END MEMORY
 
     /*---------------------------------- Predicate -----------------------------------*/
 
