@@ -3,13 +3,36 @@ from __future__ import annotations
 import pathlib
 import re
 import shutil
+import sys
 import tkinter as tk
 from tkinter import filedialog, messagebox, ttk
 from dataclasses import dataclass
 
 
 ROOT = pathlib.Path(__file__).resolve().parent
-TEMPLATES_DIR = ROOT / "osal_templates"
+
+
+def resolve_templates_dir() -> pathlib.Path:
+    """
+    Resolve path to osal templates for both source run and PyInstaller .exe.
+    """
+    candidates: list[pathlib.Path] = []
+
+    # PyInstaller onefile/onedir unpack directory.
+    meipass = getattr(sys, "_MEIPASS", None)
+    if meipass:
+        candidates.append(pathlib.Path(meipass) / "osal_templates")
+
+    # Script location and current working directory.
+    candidates.append(ROOT / "osal_templates")
+    candidates.append(pathlib.Path.cwd() / "osal_templates")
+
+    for path in candidates:
+        if path.exists() and path.is_dir():
+            return path
+
+    searched = "\n".join(f" - {p}" for p in candidates)
+    raise FileNotFoundError(f"osal_templates directory not found. Checked:\n{searched}")
 
 
 @dataclass(frozen=True)
@@ -236,8 +259,10 @@ class App(tk.Tk):
             messagebox.showerror("Error", str(exc))
             return
 
-        if not TEMPLATES_DIR.exists():
-            messagebox.showerror("Error", f"Templates directory not found: {TEMPLATES_DIR}")
+        try:
+            templates_dir = resolve_templates_dir()
+        except FileNotFoundError as exc:
+            messagebox.showerror("Error", str(exc))
             return
 
         try:
@@ -246,14 +271,14 @@ class App(tk.Tk):
             portable_dir.mkdir(parents=True, exist_ok=True)
 
             files = [
-                TEMPLATES_DIR / "sys_param_srv_osal.h",
-                TEMPLATES_DIR / "sys_param_srv_osal.c",
-                TEMPLATES_DIR / "portable" / "sys_param_srv_osal_freertos.h",
-                TEMPLATES_DIR / "portable" / "sys_param_srv_osal_freertos.c",
+                templates_dir / "sys_param_srv_osal.h",
+                templates_dir / "sys_param_srv_osal.c",
+                templates_dir / "portable" / "sys_param_srv_osal_freertos.h",
+                templates_dir / "portable" / "sys_param_srv_osal_freertos.c",
             ]
 
             for src in files:
-                rel = src.relative_to(TEMPLATES_DIR)
+                rel = src.relative_to(templates_dir)
                 text = src.read_text(encoding="utf-8")
                 text = apply_prefix(text, forms)
                 if src.name.endswith("_freertos.c"):

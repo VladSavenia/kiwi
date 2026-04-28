@@ -36,10 +36,12 @@ python osal_codegen_app.py
 
 ```bash
 python -m pip install -r requirements.txt
-pyinstaller --noconfirm --clean --onefile --windowed --name OSAL_Code_Generator osal_codegen_app.py
+pyinstaller --noconfirm --clean --onefile --windowed --name OSAL_Code_Generator --add-data "osal_templates;osal_templates" osal_codegen_app.py
 ```
 
 Готовый файл будет в `dist/OSAL_Code_Generator.exe`.
+
+> Важно: шаблоны `osal_templates` вшиваются в `.exe`, поэтому приложение корректно работает без ошибки `templates directory not found`.
 
 ## Как работает ограничение API
 
