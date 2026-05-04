@@ -3,8 +3,6 @@
  * \brief     FreeRTOS OSAL port for Template.
  * \details   Portable table implementation over FreeRTOS: queues, mutexes,
  *            threads, time, and memory. Registered in template_osalFreertosInit().
- * \author    Dzmitry Stryzhevich (d.strizhevich@unic-lab.by)
- * \copyright Copyright (c) 2025 UnicLab LTD.
  */
 
 /*=============================================================================[ INCLUDE ]=============================================================================*/

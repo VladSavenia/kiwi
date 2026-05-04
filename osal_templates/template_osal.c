@@ -2,8 +2,6 @@
  * \file      template_osal.c
  * \brief     OSAL layer interface implementation for Template.
  * \details   The concrete OSAL port is supplied via the vtable vtable in the RTOS layer.
- * \author    Dzmitry Stryzhevich (d.strizhevich@unic-lab.by)
- * \copyright Copyright (c) 2025 UnicLab LTD. All rights reserved.
  */
 
 /*=============================================================================[ INCLUDE ]=============================================================================*/
