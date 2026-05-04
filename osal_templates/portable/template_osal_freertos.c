@@ -367,7 +367,7 @@ Template_osalErr_e template_osalFreertosDeinit(Template_osalFreertos_s *const os
             osalFreertos->base.threadObjHandle[i].cfg.name      = NULL;
             osalFreertos->base.threadObjHandle[i].cfg.worker    = NULL;
             osalFreertos->base.threadObjHandle[i].cfg.stackSize = 0u;
-            osalFreertos->base.threadObjHandle[i].cfg.param     = NULL;
+            osalFreertos->base.threadObjHandle[i].cfg.args      = NULL;
             osalFreertos->base.threadObjHandle[i].cfg.prio      = TEMPLATE_OSAL_THREAD_PRIORITY_LOW;
         }
     }
@@ -974,7 +974,7 @@ static Template_osalErr_e template_osalFreertosThreadCreate(void * const osalFre
             const BaseType_t rc = xTaskCreate(threadCfg.worker,
                                               threadCfg.name,
                                               stackWords,
-                                              threadCfg.param,
+                                              threadCfg.args,
                                               prio,
                                               (TaskHandle_t *)&osal->threadObjHandle[i].handle);
             if (rc != pdPASS)
@@ -1042,7 +1042,7 @@ static Template_osalErr_e template_osalFreertosThreadDelete(void * const osalFre
     osal->threadObjHandle[tid - 1u].cfg.worker    = NULL;
     osal->threadObjHandle[tid - 1u].cfg.name      = NULL;
     osal->threadObjHandle[tid - 1u].cfg.stackSize = 0u;
-    osal->threadObjHandle[tid - 1u].cfg.param     = NULL;
+    osal->threadObjHandle[tid - 1u].cfg.args      = NULL;
     osal->threadObjHandle[tid - 1u].cfg.prio      = TEMPLATE_OSAL_THREAD_PRIORITY_LOW;
 
     /* Exit: no errors */
@@ -1186,7 +1186,7 @@ static Template_osalErr_e template_osalFreertosThreadExit(void * const osalFreer
             osal->threadObjHandle[i].cfg.worker    = NULL;
             osal->threadObjHandle[i].cfg.name      = NULL;
             osal->threadObjHandle[i].cfg.stackSize = 0u;
-            osal->threadObjHandle[i].cfg.param     = NULL;
+            osal->threadObjHandle[i].cfg.args      = NULL;
             osal->threadObjHandle[i].cfg.prio      = TEMPLATE_OSAL_THREAD_PRIORITY_LOW;
             break;
         }
