@@ -356,10 +356,11 @@ typedef struct
                                       const Template_osalTimeMs_t delayMs);
     /**
      * \brief  Terminate the calling thread (does not return).
-     * \param  osal  OSAL instance (must be valid).
      * \note   This function never returns control to the caller.
+     * \param  osal  OSAL instance (must be valid).
+     * \return Template_osalErr_e (0 on success).
      */
-    void (*threadExit)(void *const osal);
+    Template_osalErr_e (*threadExit)(void *const osal);
     // END THREAD
 
     // BEGIN TIME
